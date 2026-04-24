@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Appli d'Info 232</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --primary: #1a6b5a;
+    --primary-light: #e8f5f1;
+    --accent: #e84855;
+    --text: #1a2332;
+    --text-muted: #6b7c93;
+    --border: #dde3ec;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(26,107,90,0.3);
+  }
+  header .logo { font-size: 22px; }
+  header h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.3px; }
+  header span { font-size: 12px; opacity: 0.75; font-weight: 300; }
+
+  /* NAV TABS */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 16px;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  nav button {
+    background: none;
+    border: none;
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
+  nav button:hover:not(.active) { color: var(--text); }
+
+  /* MAIN LAYOUT */
+  main { padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* FORM ELEMENTS */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+  input, select {
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: var(--primary); background: white; }
+
+  /* BUTTONS */
+  .btn {
+    border: none;
+    border-radius: 7px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #145a4b; transform: translateY(-1px); }
+  .btn-danger { background: #fff0f0; color: var(--accent); }
+  .btn-danger:hover { background: #ffdede; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-secondary { background: var(--primary-light); color: var(--primary); }
+  .btn-secondary:hover { background: #d0ede6; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-value { font-size: 26px; font-weight: 600; color: var(--primary); font-family: 'DM Mono', monospace; }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+  /* PATIENT LIST */
+  .patient-list { display: flex; flex-direction: column; gap: 10px; }
+  .patient-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .patient-card:hover { border-color: var(--primary); }
+  .patient-info { flex: 1; min-width: 0; }
+  .patient-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .patient-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .badge {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-m { background: #e8f0fe; color: #3b5bdb; }
+  .badge-f { background: #fce4ec; color: #c2185b; }
+  .patient-actions { display: flex; gap: 6px; }
+
+  /* ANALYSE */
+  .analyse-block {
+    background: var(--primary-light);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 7px 7px 0;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .analyse-block h4 { font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
+  .analyse-row { font-size: 13px; color: var(--text); line-height: 1.8; }
+  .analyse-row span { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--primary); }
+
+  /* CHART BAR */
+  .bar-chart { margin-top: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-label { font-size: 12px; color: var(--text-muted); width: 110px; flex-shrink: 0; text-align: right; }
+  .bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 18px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+  .bar-fill span { font-size: 10px; color: white; font-family: 'DM Mono', monospace; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-title button { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); line-height: 1; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--primary);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 200;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* SEARCH */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .search-bar input { flex: 1; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* SECTION TITLE */
+  .section-header { margin-bottom: 20px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; }
+  .section-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏥</div>
+  <div>
+    <h1>Mon Appli d'Info 232</h1>
+    <span>Gestion & Analyse Santé</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('accueil', this)">🏠 Accueil</button>
+  <button onclick="showSection('enregistrer', this)">➕ Enregistrer</button>
+  <button onclick="showSection('patients', this)">👥 Patients</button>
+  <button onclick="showSection('analyses', this)">📊 Analyses</button>
+</nav>
+
+<main>
+
+  <!-- ACCUEIL -->
+  <div class="section active" id="accueil">
+    <div class="section-header">
+      <h2>Tableau de bord</h2>
+      <p>Aperçu général des données enregistrées</p>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total patients</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-age">—</div>
+        <div class="stat-label">Âge moyen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-hommes">0</div>
+        <div class="stat-label">Hommes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-femmes">0</div>
+        <div class="stat-label">Femmes</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🦠 Top maladies</div>
+      <div id="top-maladies"><div class="empty"><div class="empty-icon">📋</div>Aucune donnée</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏃 Répartition activité sportive</div>
+      <div id="repartition-sport"><div class="empty"><div class="empty-icon">📋</div>Aucune donnée</div></div>
+    </div>
+  </div>
+
+  <!-- ENREGISTRER -->
+  <div class="section" id="enregistrer">
+    <div class="section-header">
+      <h2>Nouvel enregistrement</h2>
+      <p>Ajouter un nouveau patient</p>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom *</label>
+          <input type="text" id="inp-nom" placeholder="Ex: guedia">
+        </div>
+        <div class="form-group">
+          <label>Prénom *</label>
+          <input type="text" id="inp-prenom" placeholder="Ex: aurinda">
+        </div>
+        <div class="form-group">
+          <label>Sexe *</label>
+          <select id="inp-sexe">
+            <option value="">— Choisir —</option>
+            <option value="Homme">Homme</option>
+            <option value="Femme">Femme</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Âge *</label>
+          <input type="number" id="inp-age" placeholder="Ex: 35" min="0" max="120">
+        </div>
+        <div class="form-group">
+          <label>Niveau d'activité sportive *</label>
+          <select id="inp-sport">
+            <option value="">— Choisir —</option>
+            <option value="Sédentaire">Sédentaire</option>
+            <option value="Léger">Léger (1-2fois/sem)</option>
+            <option value="Modéré">Modéré (3-4fois/sem)</option>
+            <option value="Actif">Actif (5-6fois/sem)</option>
+            <option value="Très actif">Très actif (quotidien)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Maladie / Condition *</label>
+          <input type="text" id="inp-maladie" placeholder="Ex: Diabète, Hypertension...">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="enregistrerPatient()">✅ Enregistrer</button>
+        <button class="btn btn-secondary" onclick="viderFormulaire()">🗑 Vider</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENTS -->
+  <div class="section" id="patients">
+    <div class="section-header">
+      <h2>Liste des patients</h2>
+      <p id="count-label">0 patient(s) enregistré(s)</p>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="🔍 Rechercher par nom ou prénom..." oninput="filtrerPatients()">
+    </div>
+    <div class="patient-list" id="patient-list">
+      <div class="empty"><div class="empty-icon">👥</div>Aucun patient enregistré</div>
+    </div>
+  </div>
+
+  <!-- ANALYSES -->
+  <div class="section" id="analyses">
+    <div class="section-header">
+      <h2>Analyses statistiques</h2>
+      <p>Statistiques calculées sur l'ensemble des patients</p>
+    </div>
+    <div id="analyse-content">
+      <div class="empty"><div class="empty-icon">📊</div>Ajoutez des patients pour voir les analyses</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL EDITION -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">
+      ✏️ Modifier le patient
+      <button onclick="fermerModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" id="edit-nom">
+      </div>
+      <div class="form-group">
+        <label>Prénom</label>
+        <input type="text" id="edit-prenom">
+      </div>
+      <div class="form-group">
+        <label>Sexe</label>
+        <select id="edit-sexe">
+          <option value="Homme">Homme</option>
+          <option value="Femme">Femme</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Âge</label>
+        <input type="number" id="edit-age" min="0" max="120">
+      </div>
+      <div class="form-group full">
+        <label>Niveau d'activité sportive</label>
+        <select id="edit-sport">
+          <option value="Sédentaire">Sédentaire</option>
+          <option value="Léger">Léger (1-2x/sem)</option>
+          <option value="Modéré">Modéré (3-4x/sem)</option>
+          <option value="Actif">Actif (5-6x/sem)</option>
+          <option value="Très actif">Très actif (quotidien)</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Maladie / Condition</label>
+        <input type="text" id="edit-maladie">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="sauvegarderEdition()">💾 Sauvegarder</button>
+      <button class="btn btn-secondary" onclick="fermerModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+let patients = JSON.parse(localStorage.getItem('patients_232') || '[]');
+let editIndex = -1;
+
+function sauvegarder() {
+  localStorage.setItem('patients_232', JSON.stringify(patients));
+}
+
+// ==================== NAVIGATION ====================
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'accueil') majAccueil();
+  if (id === 'patients') afficherPatients();
+  if (id === 'analyses') afficherAnalyses();
+}
+
+// ==================== TOAST ====================
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'var(--primary)' : 'var(--accent)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ==================== ENREGISTRER ====================
+function enregistrerPatient() {
+  const nom = document.getElementById('inp-nom').value.trim();
+  const prenom = document.getElementById('inp-prenom').value.trim();
+  const sexe = document.getElementById('inp-sexe').value;
+  const age = parseInt(document.getElementById('inp-age').value);
+  const sport = document.getElementById('inp-sport').value;
+  const maladie = document.getElementById('inp-maladie').value.trim();
+
+  if (!nom || !prenom || !sexe || isNaN(age) || !sport || !maladie) {
+    showToast('⚠️ Veuillez remplir tous les champs.', false);
+    return;
+  }
+
+  const patient = { id: Date.now(), nom, prenom, sexe, age, sport, maladie };
+  patients.push(patient);
+  sauvegarder();
+  viderFormulaire();
+  showToast(`✅ ${prenom} ${nom} enregistré(e) avec succès.`);
+}
+
+function viderFormulaire() {
+  ['inp-nom','inp-prenom','inp-age','inp-maladie'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-sexe').value = '';
+  document.getElementById('inp-sport').value = '';
+}
+
+// ==================== AFFICHER PATIENTS ====================
+function afficherPatients(liste) {
+  const arr = liste !== undefined ? liste : patients;
+  const el = document.getElementById('patient-list');
+  document.getElementById('count-label').textContent = `${patients.length} patient(s) enregistré(s)`;
+
+  if (arr.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Aucun patient trouvé</div>';
+    return;
+  }
+
+  el.innerHTML = arr.map((p, i) => {
+    const realIndex = patients.findIndex(x => x.id === p.id);
+    return `
+    <div class="patient-card">
+      <div class="patient-info">
+        <div class="patient-name">${p.prenom} ${p.nom}</div>
+        <div class="patient-meta">${p.age} ans · ${p.sport} · ${p.maladie}</div>
+      </div>
+      <span class="badge ${p.sexe === 'Homme' ? 'badge-m' : 'badge-f'}">${p.sexe}</span>
+      <div class="patient-actions">
+        <button class="btn btn-secondary btn-sm" onclick="ouvrirEdition(${realIndex})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="supprimerPatient(${realIndex})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrerPatients() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const res = patients.filter(p =>
+    p.nom.toLowerCase().includes(q) || p.prenom.toLowerCase().includes(q)
+  );
+  afficherPatients(res);
+}
+
+function supprimerPatient(i) {
+  if (!confirm(`Supprimer ${patients[i].prenom} ${patients[i].nom} ?`)) return;
+  patients.splice(i, 1);
+  sauvegarder();
+  afficherPatients();
+  showToast('🗑 Patient supprimé.');
+}
+
+// ==================== EDITION ====================
+function ouvrirEdition(i) {
+  editIndex = i;
+  const p = patients[i];
+  document.getElementById('edit-nom').value = p.nom;
+  document.getElementById('edit-prenom').value = p.prenom;
+  document.getElementById('edit-sexe').value = p.sexe;
+  document.getElementById('edit-age').value = p.age;
+  document.getElementById('edit-sport').value = p.sport;
+  document.getElementById('edit-maladie').value = p.maladie;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function fermerModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editIndex = -1;
+}
+
+function sauvegarderEdition() {
+  if (editIndex === -1) return;
+  const p = patients[editIndex];
+  p.nom = document.getElementById('edit-nom').value.trim() || p.nom;
+  p.prenom = document.getElementById('edit-prenom').value.trim() || p.prenom;
+  p.sexe = document.getElementById('edit-sexe').value;
+  p.age = parseInt(document.getElementById('edit-age').value) || p.age;
+  p.sport = document.getElementById('edit-sport').value;
+  p.maladie = document.getElementById('edit-maladie').value.trim() || p.maladie;
+  sauvegarder();
+  fermerModal();
+  afficherPatients();
+  showToast('💾 Modifications sauvegardées.');
+}
+
+// ==================== ACCUEIL ====================
+function majAccueil() {
+  document.getElementById('stat-total').textContent = patients.length;
+  if (patients.length === 0) {
+    document.getElementById('stat-age').textContent = '—';
+    document.getElementById('stat-hommes').textContent = 0;
+    document.getElementById('stat-femmes').textContent = 0;
+    document.getElementById('top-maladies').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucune donnée</div>';
+    document.getElementById('repartition-sport').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucune donnée</div>';
+    return;
+  }
+
+  const ages = patients.map(p => p.age);
+  const moy = (ages.reduce((a,b) => a+b, 0) / ages.length).toFixed(1);
+  document.getElementById('stat-age').textContent = moy;
+  document.getElementById('stat-hommes').textContent = patients.filter(p => p.sexe === 'Homme').length;
+  document.getElementById('stat-femmes').textContent = patients.filter(p => p.sexe === 'Femme').length;
+
+  // Top maladies
+  const maladies = {};
+  patients.forEach(p => { maladies[p.maladie] = (maladies[p.maladie] || 0) + 1; });
+  const sorted = Object.entries(maladies).sort((a,b) => b[1]-a[1]).slice(0, 5);
+  const maxM = sorted[0]?.[1] || 1;
+  document.getElementById('top-maladies').innerHTML = '<div class="bar-chart">' +
+    sorted.map(([m, n]) => `
+      <div class="bar-row">
+        <div class="bar-label">${m}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${(n/maxM*100).toFixed(0)}%">
+            <span>${n}</span>
+          </div>
+        </div>
+      </div>`).join('') + '</div>';
+
+  // Sport
+  const sports = {};
+  patients.forEach(p => { sports[p.sport] = (sports[p.sport] || 0) + 1; });
+  const sortedS = Object.entries(sports).sort((a,b) => b[1]-a[1]);
+  const maxS = sortedS[0]?.[1] || 1;
+  document.getElementById('repartition-sport').innerHTML = '<div class="bar-chart">' +
+    sortedS.map(([s, n]) => `
+      <div class="bar-row">
+        <div class="bar-label">${s}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${(n/maxS*100).toFixed(0)}%;background:#3b82f6">
+            <span>${n}</span>
+          </div>
+        </div>
+      </div>`).join('') + '</div>';
+}
+
+// ==================== ANALYSES ====================
+function afficherAnalyses() {
+  const el = document.getElementById('analyse-content');
+  if (patients.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div>Ajoutez des patients pour voir les analyses</div>';
+    return;
+  }
+
+  const ages = patients.map(p => p.age);
+  const n = patients.length;
+  const somme = ages.reduce((a,b) => a+b, 0);
+  const moyenne = somme / n;
+  const sorted = [...ages].sort((a,b) => a-b);
+  const mediane = n % 2 === 0 ? (sorted[n/2-1] + sorted[n/2]) / 2 : sorted[Math.floor(n/2)];
+  const variance = ages.reduce((a,b) => a + Math.pow(b - moyenne, 2), 0) / n;
+  const ecartType = Math.sqrt(variance).toFixed(2);
+  const min = Math.min(...ages);
+  const max = Math.max(...ages);
+
+  // Mode maladie
+  const maladies = {};
+  patients.forEach(p => { maladies[p.maladie] = (maladies[p.maladie] || 0) + 1; });
+  const modeMaladie = Object.entries(maladies).sort((a,b) => b[1]-a[1])[0];
+
+  // Sport stats
+  const sportMap = {'Sédentaire':0,'Léger':1,'Modéré':2,'Actif':3,'Très actif':4};
+  const sportLabels = {0:'Sédentaire',1:'Léger',2:'Modéré',3:'Actif',4:'Très actif'};
+  const sportVals = patients.map(p => sportMap[p.sport] ?? 2);
+  const moyenneS = (sportVals.reduce((a,b)=>a+b,0)/sportVals.length);
+  const labelS = sportLabels[Math.round(moyenneS)];
+
+  // Sexe
+  const hommes = patients.filter(p => p.sexe === 'Homme').length;
+  const femmes = patients.filter(p => p.sexe === 'Femme').length;
+  const pctH = ((hommes/n)*100).toFixed(1);
+  const pctF = ((femmes/n)*100).toFixed(1);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">📐 Statistiques d'âge</div>
+      <div class="analyse-block">
+        <h4>Âge des patients (n = ${n})</h4>
+        <div class="analyse-row">Moyenne : <span>${moyenne.toFixed(2)} ans</span></div>
+        <div class="analyse-row">Médiane : <span>${mediane} ans</span></div>
+        <div class="analyse-row">Écart-type : <span>${ecartType}</span></div>
+        <div class="analyse-row">Min : <span>${min} ans</span> &nbsp;|&nbsp; Max : <span>${max} ans</span></div>
+        <div class="analyse-row">Étendue : <span>${max - min} ans</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚧ Répartition par sexe</div>
+      <div class="analyse-block">
+        <div class="analyse-row">Hommes : <span>${hommes} (${pctH}%)</span></div>
+        <div class="analyse-row">Femmes : <span>${femmes} (${pctF}%)</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🦠 Maladies</div>
+      <div class="analyse-block">
+        <h4>Distribution</h4>
+        ${Object.entries(maladies).sort((a,b)=>b[1]-a[1]).map(([m,c]) =>
+          `<div class="analyse-row">${m} : <span>${c} patient(s) (${((c/n)*100).toFixed(1)}%)</span></div>`
+        ).join('')}
+        <div class="analyse-row" style="margin-top:8px">Maladie la + fréquente : <span>${modeMaladie[0]} (${modeMaladie[1]}x)</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏃 Activité sportive</div>
+      <div class="analyse-block">
+        ${Object.entries({'Sédentaire':0,'Léger':0,'Modéré':0,'Actif':0,'Très actif':0})
+          .map(([k]) => {
+            const cnt = patients.filter(p=>p.sport===k).length;
+            return cnt > 0 ? `<div class="analyse-row">${k} : <span>${cnt} (${((cnt/n)*100).toFixed(1)}%)</span></div>` : '';
+          }).join('')}
+        <div class="analyse-row" style="margin-top:8px">Niveau moyen : <span>${labelS}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== INIT ====================
+majAccueil();
+</script>
+</body>
+</html>
